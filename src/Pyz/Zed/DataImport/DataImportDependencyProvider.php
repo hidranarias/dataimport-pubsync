@@ -7,6 +7,7 @@
 
 namespace Pyz\Zed\DataImport;
 
+use Pyz\Zed\AntelopeDataImport\Communication\Plugin\DataImport\AntelopeDataImportPlugin;
 use Spryker\Zed\CategoryDataImport\Communication\Plugin\CategoryDataImportPlugin;
 use Spryker\Zed\CategoryDataImport\Communication\Plugin\DataImport\CategoryStoreDataImportPlugin;
 use Spryker\Zed\CmsPageDataImport\Communication\Plugin\CmsPageDataImportPlugin;
@@ -130,11 +131,11 @@ class DataImportDependencyProvider extends SprykerDataImportDependencyProvider
      *
      * @return \Spryker\Zed\Kernel\Container
      */
-    protected function addProductSearchFacade(Container $container)
+    protected function addProductRelationFacade(Container $container)
     {
-        $container->set(static::FACADE_PRODUCT_SEARCH, function (Container $container) {
-            return $container->getLocator()->productSearch()->facade();
-        });
+        $container[static::FACADE_PRODUCT_RELATION] = function (Container $container) {
+            return $container->getLocator()->productRelation()->facade();
+        };
 
         return $container;
     }
@@ -144,11 +145,11 @@ class DataImportDependencyProvider extends SprykerDataImportDependencyProvider
      *
      * @return \Spryker\Zed\Kernel\Container
      */
-    protected function addProductRelationFacade(Container $container)
+    protected function addProductSearchFacade(Container $container)
     {
-        $container[static::FACADE_PRODUCT_RELATION] = function (Container $container) {
-            return $container->getLocator()->productRelation()->facade();
-        };
+        $container->set(static::FACADE_PRODUCT_SEARCH, function (Container $container) {
+            return $container->getLocator()->productSearch()->facade();
+        });
 
         return $container;
     }
@@ -252,6 +253,7 @@ class DataImportDependencyProvider extends SprykerDataImportDependencyProvider
             new ContentNavigationDataImportPlugin(),
             new StockAddressDataImportPlugin(),
             new CategoryStoreDataImportPlugin(),
+            new AntelopeDataImportPlugin(),
         ];
     }
 
