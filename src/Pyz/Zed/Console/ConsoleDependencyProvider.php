@@ -7,6 +7,7 @@
 
 namespace Pyz\Zed\Console;
 
+use Pyz\Zed\AntelopeDataImport\AntelopeDataImportConfig;
 use Pyz\Zed\DataImport\DataImportConfig;
 use Pyz\Zed\Development\Communication\Console\AcceptanceCodeTestConsole;
 use Pyz\Zed\Development\Communication\Console\ApiCodeTestConsole;
@@ -175,6 +176,49 @@ class ConsoleDependencyProvider extends SprykerConsoleDependencyProvider
     /**
      * @param \Spryker\Zed\Kernel\Container $container
      *
+     * @return array
+     */
+    public function getConsolePostRunHookPlugins(Container $container)
+    {
+        return [
+            new EventBehaviorPostHookPlugin(),
+        ];
+    }
+
+    /**
+     * @param \Spryker\Zed\Kernel\Container $container
+     *
+     * @return \Spryker\Shared\ApplicationExtension\Dependency\Plugin\ApplicationPluginInterface[]
+     */
+    public function getApplicationPlugins(Container $container): array
+    {
+        $applicationPlugins = parent::getApplicationPlugins($container);
+        $applicationPlugins[] = new PropelApplicationPlugin();
+        $applicationPlugins[] = new TwigApplicationPlugin();
+
+        return $applicationPlugins;
+    }
+
+    /**
+     * @param \Spryker\Zed\Kernel\Container $container
+     *
+     * @return \Symfony\Component\EventDispatcher\EventSubscriberInterface[]
+     */
+    public function getEventSubscriber(Container $container): array
+    {
+        $eventSubscriber = parent::getEventSubscriber($container);
+
+        if (!Environment::isDevelopment()) {
+            $eventSubscriber[] = new ConsoleLogPlugin();
+            $eventSubscriber[] = new MonitoringConsolePlugin();
+        }
+
+        return $eventSubscriber;
+    }
+
+    /**
+     * @param \Spryker\Zed\Kernel\Container $container
+     *
      * @return \Symfony\Component\Console\Command\Command[]
      */
     protected function getConsoleCommands(Container $container): array
@@ -266,6 +310,7 @@ class ConsoleDependencyProvider extends SprykerConsoleDependencyProvider
             new DataImportConsole(DataImportConsole::DEFAULT_NAME . ':' . ProductQuantityDataImportConfig::IMPORT_TYPE_PRODUCT_QUANTITY),
             new DataImportConsole(DataImportConsole::DEFAULT_NAME . ':' . ProductRelationDataImportConfig::IMPORT_TYPE_PRODUCT_RELATION),
             new DataImportConsole(DataImportConsole::DEFAULT_NAME . ':' . ProductRelationDataImportConfig::IMPORT_TYPE_PRODUCT_RELATION_STORE),
+            new DataImportConsole(DataImportConsole::DEFAULT_NAME . static::PYZ_COMMAND_SEPARATOR . AntelopeDataImportConfig::IMPORT_TYPE_ANTELOPE),
 
             // Publish and Synchronization
             new EventBehaviorTriggerTimeoutConsole(),
@@ -408,48 +453,5 @@ class ConsoleDependencyProvider extends SprykerConsoleDependencyProvider
         }
 
         return $commands;
-    }
-
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return array
-     */
-    public function getConsolePostRunHookPlugins(Container $container)
-    {
-        return [
-            new EventBehaviorPostHookPlugin(),
-        ];
-    }
-
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Shared\ApplicationExtension\Dependency\Plugin\ApplicationPluginInterface[]
-     */
-    public function getApplicationPlugins(Container $container): array
-    {
-        $applicationPlugins = parent::getApplicationPlugins($container);
-        $applicationPlugins[] = new PropelApplicationPlugin();
-        $applicationPlugins[] = new TwigApplicationPlugin();
-
-        return $applicationPlugins;
-    }
-
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Symfony\Component\EventDispatcher\EventSubscriberInterface[]
-     */
-    public function getEventSubscriber(Container $container): array
-    {
-        $eventSubscriber = parent::getEventSubscriber($container);
-
-        if (!Environment::isDevelopment()) {
-            $eventSubscriber[] = new ConsoleLogPlugin();
-            $eventSubscriber[] = new MonitoringConsolePlugin();
-        }
-
-        return $eventSubscriber;
     }
 }
