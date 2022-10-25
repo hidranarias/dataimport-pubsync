@@ -2,6 +2,7 @@
 version: 0
 
 actions:
+
 #1. Commerce Setup import
   - data_entity: store
     # Cannot have a source because we use store.php
@@ -189,3 +190,6 @@ actions:
 #6. Miscellaneous Setup import
   - data_entity: mime-type
     source: data/import/common/common/mime_type.csv
+# antelope
+  - data_entity: antelope
+    source: data/import/common/antelope.csv
